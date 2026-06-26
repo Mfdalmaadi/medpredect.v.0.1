@@ -154,10 +154,10 @@ const Dashboard: React.FC = () => {
             <h2 className="text-lg font-bold text-slate-950 dark:text-white">Quick Actions</h2>
             <div className="mt-5 space-y-3">
               {[
-                { label: 'Add or Find Patient', help: 'Open the patient registry', icon: UserPlus, to: '/patients' },
-                { label: 'Diabetes Prediction', help: 'Run a diabetes risk assessment', icon: Stethoscope, to: '/predict/diabetes' },
-                { label: 'PCOS Prediction', help: 'Prepared clinical scoring workflow', icon: ClipboardList, to: '/predict/pcos' },
-                { label: 'Reports (PDF)', help: 'Download reports from prediction history', icon: FileText, to: '/history' },
+                { label: 'Find Patient', help: 'Open a patient record before launching predictions', icon: UserPlus, to: '/patients' },
+                { label: 'Prediction History', help: 'Review completed diagnostic assessments', icon: Stethoscope, to: '/history' },
+                { label: 'Reports', help: 'Download generated PDF reports', icon: FileText, to: '/reports' },
+                { label: 'Notifications', help: 'Review backend clinical alerts', icon: ClipboardList, to: '/notifications' },
               ].map((action) => {
                 const Icon = action.icon;
                 return (
@@ -209,7 +209,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
             <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">
-              Distribution is derived from `/dashboard/summary`; no placeholder chart data is generated.
+              Distribution is derived from `/dashboard/summary`.
             </p>
           </div>
         </div>
@@ -243,7 +243,7 @@ const Dashboard: React.FC = () => {
 
       <div className="clinical-panel">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-950 dark:text-white">Recent Predictions</h2>
+          <h2 className="text-lg font-bold text-slate-950 dark:text-white">Recent Activity</h2>
           <button onClick={() => navigate('/history')} className="text-xs font-semibold text-blue-700 hover:text-blue-800 dark:text-blue-300">
             Prediction history
           </button>

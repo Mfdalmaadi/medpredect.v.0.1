@@ -43,7 +43,7 @@ const PredictionHistory: React.FC = () => {
 
   const getPatientIdentifier = (patientId: string) => {
     const patient = patients.find((p) => p.id === patientId);
-    return patient ? patient.medical_identifier : '—';
+    return patient ? patient.medical_identifier : '-';
   };
 
   const getRiskColor = (level: 'low' | 'medium' | 'high') => {
@@ -93,15 +93,15 @@ const PredictionHistory: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-          <History className="h-7 w-7 text-indigo-500" />
-          Prediction Audit Registry
+        <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">
+          <History className="h-7 w-7 text-blue-600 dark:text-blue-300" />
+          Predictions
         </h1>
-        <p className="text-slate-400 text-sm mt-1">Review and manage past diagnostic assessments and SHAP models</p>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Prediction history for completed patient assessments and clinical explanations.</p>
       </div>
 
       {/* Filters Toolbar */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row gap-4 shadow">
+      <div className="clinical-card flex flex-col gap-4 p-4 md:flex-row">
         {/* Search */}
         <div className="relative flex-1">
           <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500">
@@ -112,7 +112,7 @@ const PredictionHistory: React.FC = () => {
             placeholder="Search patient name or ID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-950/50 border border-slate-800 text-slate-100 placeholder-slate-600 pl-9 pr-4 py-2 rounded-xl focus:outline-none focus:border-indigo-500 text-sm transition-all duration-300"
+            className="clinical-input pl-9"
           />
         </div>
 
@@ -122,7 +122,7 @@ const PredictionHistory: React.FC = () => {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value as any)}
-            className="bg-slate-950/50 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500 appearance-none pr-8 relative"
+            className="clinical-input pr-8 text-xs"
           >
             <option value="all">All Diseases</option>
             <option value="diabetes">Diabetes Only</option>
@@ -136,7 +136,7 @@ const PredictionHistory: React.FC = () => {
           <select
             value={riskFilter}
             onChange={(e) => setRiskFilter(e.target.value as any)}
-            className="bg-slate-950/50 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500 appearance-none pr-8"
+            className="clinical-input pr-8 text-xs"
           >
             <option value="all">All Risks</option>
             <option value="low">Low Risk</option>
@@ -157,16 +157,16 @@ const PredictionHistory: React.FC = () => {
           <p>{error}</p>
         </div>
       ) : filteredPredictions.length === 0 ? (
-        <div className="text-center py-20 bg-slate-900/50 border border-slate-800 border-dashed rounded-3xl text-slate-500 text-sm">
+        <div className="clinical-empty">
           No past predictions found matching current filters.
         </div>
       ) : (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <div className="clinical-table">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-800 bg-slate-950/40 text-slate-400 text-xs font-semibold uppercase tracking-wider">
-                  <th className="px-6 py-4">Patient Profile</th>
+                <tr className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-950/40">
+                  <th className="px-6 py-4">Patient Record</th>
                   <th className="px-6 py-4">Diagnostic Assessment</th>
                   <th className="px-6 py-4">Run Date</th>
                   <th className="px-6 py-4">Risk Probability</th>
@@ -174,14 +174,14 @@ const PredictionHistory: React.FC = () => {
                   <th className="px-6 py-4 text-right">Report Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/50 text-sm text-slate-300">
+              <tbody className="divide-y divide-slate-100 text-sm text-slate-700 dark:divide-slate-800/70 dark:text-slate-300">
                 {filteredPredictions.map((pred) => (
                   <tr 
                     key={pred.id} 
-                    className="hover:bg-slate-800/30 transition-colors"
+                    className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/30"
                   >
                     <td className="px-6 py-4">
-                      <div className="font-semibold text-white">{getPatientName(pred.patient_id)}</div>
+                      <div className="font-semibold text-slate-950 dark:text-white">{getPatientName(pred.patient_id)}</div>
                       <div className="text-xs text-slate-500 font-mono mt-0.5">{getPatientIdentifier(pred.patient_id)}</div>
                     </td>
                     <td className="px-6 py-4">
@@ -200,7 +200,7 @@ const PredictionHistory: React.FC = () => {
                         {new Date(pred.created_at).toLocaleDateString()} {new Date(pred.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </td>
-                    <td className="px-6 py-4 font-mono font-bold text-white">
+                    <td className="px-6 py-4 font-mono font-bold text-slate-950 dark:text-white">
                       {(pred.probability).toLocaleString([], { style: 'percent', minimumFractionDigits: 1 })}
                     </td>
                     <td className="px-6 py-4">

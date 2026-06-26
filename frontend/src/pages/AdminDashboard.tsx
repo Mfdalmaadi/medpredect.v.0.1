@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store';
 import {
   fetchUsers,
@@ -21,18 +22,42 @@ import {
   UserCog,
   Stethoscope,
   ClipboardList,
+  BarChart3,
 } from 'lucide-react';
 
 const AdminDashboard: React.FC = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { section } = useParams<{ section?: string }>();
   const { users, auditLogs, stats, loading, error } = useAppSelector((state) => state.admin);
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'audit'>('overview');
+  const sectionToTab = (value?: string): 'overview' | 'users' | 'audit' | 'statistics' => {
+    if (value === 'users') return 'users';
+    if (value === 'audit-logs') return 'audit';
+    if (value === 'statistics') return 'statistics';
+    return 'overview';
+  };
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'audit' | 'statistics'>(sectionToTab(section));
 
   useEffect(() => {
     dispatch(fetchAdminStats());
     dispatch(fetchUsers());
     dispatch(fetchAuditLogs());
   }, [dispatch]);
+
+  useEffect(() => {
+    setActiveTab(sectionToTab(section));
+  }, [section]);
+
+  const handleTabChange = (tab: 'overview' | 'users' | 'audit' | 'statistics') => {
+    setActiveTab(tab);
+    const pathByTab = {
+      overview: '/admin',
+      users: '/admin/users',
+      audit: '/admin/audit-logs',
+      statistics: '/admin/statistics',
+    };
+    navigate(pathByTab[tab]);
+  };
 
   const handleToggleStatus = (user: any) => {
     const actionText = user.is_active ? 'disable' : 'enable';
@@ -80,15 +105,16 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex max-w-xl rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex max-w-3xl rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         {[
           { id: 'overview', label: 'Overview' },
           { id: 'users', label: 'User Management' },
           { id: 'audit', label: 'Audit Logs' },
+          { id: 'statistics', label: 'Statistics' },
         ].map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
+            onClick={() => handleTabChange(tab.id as any)}
             className={`flex-1 rounded-xl px-3 py-2 text-xs font-semibold transition ${
               activeTab === tab.id
                 ? 'bg-blue-600 text-white shadow-sm'
@@ -237,6 +263,83 @@ const AdminDashboard: React.FC = () => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'statistics' && stats && (
+            <div className="space-y-8">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {[
+                  { label: 'Total Users', value: stats.total_users, icon: Users },
+                  { label: 'Active Users', value: stats.active_users, icon: CheckCircle2 },
+                  { label: 'Total Patients', value: stats.total_patients, icon: UserCog },
+                  { label: 'Total Predictions', value: stats.total_predictions, icon: Activity },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <div key={item.label} className="clinical-card flex items-center justify-between p-6">
+                      <div>
+                        <p className="text-xs font-semibold uppercase text-slate-500">{item.label}</p>
+                        <p className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">{item.value}</p>
+                      </div>
+                      <div className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-blue-700 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-300">
+                        <Icon className="h-6 w-6" />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                <div className="clinical-panel">
+                  <h2 className="flex items-center gap-2 text-lg font-bold text-slate-950 dark:text-white">
+                    <BarChart3 className="h-5 w-5 text-blue-700 dark:text-blue-300" />
+                    Users By Role
+                  </h2>
+                  <div className="mt-5 space-y-4">
+                    {Object.entries(stats.users_by_role || {}).map(([role, count]) => {
+                      const percentage = stats.total_users ? (Number(count) / stats.total_users) * 100 : 0;
+                      return (
+                        <div key={role}>
+                          <div className="flex justify-between text-sm">
+                            <span className="font-medium capitalize text-slate-700 dark:text-slate-300">{role}</span>
+                            <span className="font-semibold text-slate-500">{count} ({percentage.toFixed(0)}%)</span>
+                          </div>
+                          <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-950">
+                            <div className="h-full rounded-full bg-blue-600" style={{ width: `${percentage}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="clinical-panel">
+                  <h2 className="flex items-center gap-2 text-lg font-bold text-slate-950 dark:text-white">
+                    <Activity className="h-5 w-5 text-blue-700 dark:text-blue-300" />
+                    Predictions By Disease
+                  </h2>
+                  <div className="mt-5 space-y-4">
+                    {Object.entries(stats.predictions_by_disease || {}).map(([disease, count]) => {
+                      const percentage = stats.total_predictions ? (Number(count) / stats.total_predictions) * 100 : 0;
+                      return (
+                        <div key={disease}>
+                          <div className="flex justify-between text-sm">
+                            <span className="font-medium capitalize text-slate-700 dark:text-slate-300">{disease}</span>
+                            <span className="font-semibold text-slate-500">{count} ({percentage.toFixed(0)}%)</span>
+                          </div>
+                          <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-950">
+                            <div className="h-full rounded-full bg-blue-600" style={{ width: `${percentage}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {Object.keys(stats.predictions_by_disease || {}).length === 0 && (
+                      <div className="clinical-empty py-10">No prediction statistics returned by the backend.</div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           )}

@@ -5,14 +5,13 @@ import {
   Users, 
   History, 
   ShieldCheck, 
-  HeartPulse, 
-  Activity,
+  HeartPulse,
   LogOut,
   Bell,
-  PlusCircle,
   FileText,
-  UserRound,
-  Settings
+  ClipboardList,
+  BarChart3,
+  ScrollText
 } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../store';
 import { logoutUser } from '../store/slices/authSlice';
@@ -35,43 +34,25 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       to: '/dashboard',
       label: 'Dashboard',
       icon: LayoutDashboard,
-      allowedRoles: ['admin', 'doctor', 'patient'],
+      allowedRoles: ['admin', 'doctor'],
+    },
+    {
+      to: '/admin/users',
+      label: 'Users',
+      icon: Users,
+      allowedRoles: ['admin'],
     },
     {
       to: '/patients',
       label: 'Patients',
       icon: Users,
-      allowedRoles: ['admin', 'doctor'],
-    },
-    {
-      to: '/patients',
-      label: 'Add Patient',
-      icon: PlusCircle,
-      allowedRoles: ['admin', 'doctor'],
-    },
-    {
-      to: '/predict/diabetes',
-      label: 'Diabetes Prediction',
-      icon: Activity,
-      allowedRoles: ['admin', 'doctor'],
-    },
-    {
-      to: '/predict/pcos',
-      label: 'PCOS Prediction (Prepared)',
-      icon: HeartPulse,
-      allowedRoles: ['admin', 'doctor'],
+      allowedRoles: ['doctor'],
     },
     {
       to: '/history',
-      label: 'Prediction History',
+      label: 'Predictions',
       icon: History,
-      allowedRoles: ['admin', 'doctor', 'patient'],
-    },
-    {
-      to: '/history',
-      label: 'Reports (PDF)',
-      icon: FileText,
-      allowedRoles: ['admin', 'doctor', 'patient'],
+      allowedRoles: ['admin', 'doctor'],
     },
     {
       to: '/notifications',
@@ -80,8 +61,26 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       allowedRoles: ['admin', 'doctor', 'patient'],
     },
     {
+      to: '/reports',
+      label: 'Reports',
+      icon: FileText,
+      allowedRoles: ['admin', 'doctor'],
+    },
+    {
+      to: '/admin/audit-logs',
+      label: 'Audit Logs',
+      icon: ScrollText,
+      allowedRoles: ['admin'],
+    },
+    {
+      to: '/admin/statistics',
+      label: 'Statistics',
+      icon: BarChart3,
+      allowedRoles: ['admin'],
+    },
+    {
       to: '/admin',
-      label: 'Admin Control',
+      label: 'Admin Overview',
       icon: ShieldCheck,
       allowedRoles: ['admin'],
     },
@@ -90,11 +89,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const filteredItems = navItems.filter(
     (item) => user && item.allowedRoles.includes(user.role)
   );
-
-  const accountItems = [
-    { label: 'Profile', icon: UserRound, description: user?.email || 'Signed in user' },
-    { label: 'Settings', icon: Settings, description: 'Theme and account controls' },
-  ];
 
   return (
     <>
@@ -131,7 +125,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         </div>
 
         <nav className="flex-1 overflow-y-auto px-4 py-6">
-          <p className="px-4 pb-2 text-[10px] font-semibold uppercase text-slate-400">Clinical Navigation</p>
+          <p className="px-4 pb-2 text-[10px] font-semibold uppercase text-slate-400">Workflow Navigation</p>
           <div className="space-y-1">
           {filteredItems.map((item) => {
             const Icon = item.icon;
@@ -142,7 +136,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                 onClick={() => setIsOpen(false)}
                 className={({ isActive }) =>
                   `flex items-center gap-3.5 rounded-xl px-4 py-3 text-sm font-medium transition ${
-                    isActive && !['Add Patient', 'Reports (PDF)'].includes(item.label)
+                    isActive
                       ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/20'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-slate-100'
                   }`
@@ -154,24 +148,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             );
           })}
           </div>
-
-          <p className="px-4 pb-2 pt-6 text-[10px] font-semibold uppercase text-slate-400">Account</p>
-          <div className="space-y-1">
-            {accountItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.label}
-                  type="button"
-                  title={`${item.label}: ${item.description}`}
-                  className="flex w-full items-center gap-3.5 rounded-xl px-4 py-3 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-slate-100"
-                >
-                  <Icon className="h-5 w-5" />
-                  {item.label}
-                </button>
-              );
-            })}
-          </div>
+          {user?.role === 'doctor' && (
+            <div className="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-4 text-xs leading-5 text-blue-800 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-200">
+              <div className="mb-2 flex items-center gap-2 font-semibold uppercase">
+                <ClipboardList className="h-4 w-4" />
+                Doctor workflow
+              </div>
+              Dashboard {'->'} Patients {'->'} Patient Details {'->'} Prediction {'->'} Results {'->'} Reports
+            </div>
+          )}
         </nav>
 
         {/* Footer Logout */}

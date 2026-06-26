@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Bell, Menu, CheckCircle, Moon, Sun } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../store';
 import { fetchNotifications, markNotificationAsRead } from '../store/slices/notificationSlice';
@@ -14,10 +15,27 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
     return localStorage.getItem('medpredict-theme') === 'dark';
   });
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
   
   const dispatch = useAppDispatch();
   const { items: notifications, unreadCount } = useAppSelector((state) => state.notifications);
   const { user } = useAppSelector((state) => state.auth);
+
+  const pageTitle = (() => {
+    const path = location.pathname;
+    if (path.startsWith('/patients/')) return 'Patient Details';
+    if (path === '/patients') return 'Patients';
+    if (path.startsWith('/predict/')) return 'Prediction';
+    if (path.startsWith('/predictions/')) return 'Results';
+    if (path === '/history') return 'Predictions';
+    if (path === '/reports') return 'Reports';
+    if (path === '/notifications') return 'Notifications';
+    if (path === '/admin/users') return 'Users';
+    if (path === '/admin/audit-logs') return 'Audit Logs';
+    if (path === '/admin/statistics') return 'Statistics';
+    if (path.startsWith('/admin')) return 'Admin Overview';
+    return 'Dashboard';
+  })();
 
   useEffect(() => {
     // Initial fetch of notifications
@@ -62,8 +80,11 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
         <Menu className="h-6 w-6" />
       </button>
 
-      <div className="hidden sm:block">
-        <span className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">
+      <div className="min-w-0 flex-1 px-3 sm:px-0">
+        <h1 className="truncate text-base font-bold text-slate-950 dark:text-white sm:text-lg">
+          {pageTitle}
+        </h1>
+        <span className="hidden text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 sm:block">
           Clinical decision support platform
         </span>
       </div>

@@ -107,22 +107,22 @@ const Patients: React.FC = () => {
       {/* Header section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Patient Registry</h1>
-          <p className="text-slate-400 text-sm mt-1">Manage and evaluate patient diagnostic profiles</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-950 dark:text-white">Patients</h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Find patient records and open details to launch clinical predictions.</p>
         </div>
         {user?.role !== 'patient' && (
           <button
             onClick={openAddModal}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-xl shadow-lg shadow-indigo-600/10 transition-all duration-300 text-sm self-start sm:self-auto"
+            className="clinical-button-primary self-start sm:self-auto"
           >
             <Plus className="h-4 w-4" />
-            Add Patient
+            New Patient
           </button>
         )}
       </div>
 
       {/* Toolbar */}
-      <div className="flex bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow">
+      <div className="clinical-card flex p-4">
         <div className="relative flex-1">
           <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500">
             <Search className="h-5 w-5" />
@@ -132,7 +132,7 @@ const Patients: React.FC = () => {
             placeholder="Search patient name or medical ID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-950/50 border border-slate-800 text-slate-100 placeholder-slate-600 pl-10 pr-4 py-2.5 rounded-xl focus:outline-none focus:border-indigo-500 transition-all duration-300 text-sm"
+            className="clinical-input pl-10"
           />
         </div>
       </div>
@@ -148,15 +148,15 @@ const Patients: React.FC = () => {
           <p>{error}</p>
         </div>
       ) : filteredPatients.length === 0 ? (
-        <div className="text-center py-20 bg-slate-900/50 border border-slate-800 border-dashed rounded-3xl text-slate-500 text-sm">
+        <div className="clinical-empty">
           No patients found matching your search.
         </div>
       ) : (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <div className="clinical-table">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-800 bg-slate-950/40 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                <tr className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-950/40">
                   <th className="px-6 py-4">Name</th>
                   <th className="px-6 py-4">Medical Identifier</th>
                   <th className="px-6 py-4">Date of Birth</th>
@@ -165,13 +165,13 @@ const Patients: React.FC = () => {
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/50 text-sm text-slate-300">
+              <tbody className="divide-y divide-slate-100 text-sm text-slate-700 dark:divide-slate-800/70 dark:text-slate-300">
                 {filteredPatients.map((patient) => (
                   <tr 
                     key={patient.id} 
-                    className="hover:bg-slate-800/30 transition-colors group"
+                    className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/30"
                   >
-                    <td className="px-6 py-4 font-semibold text-white">
+                    <td className="px-6 py-4 font-semibold text-slate-950 dark:text-white">
                       {patient.first_name} {patient.last_name}
                     </td>
                     <td className="px-6 py-4 font-mono text-xs text-slate-400">
@@ -183,8 +183,8 @@ const Patients: React.FC = () => {
                     <td className="px-6 py-4 capitalize">
                       {patient.gender}
                     </td>
-                    <td className="px-6 py-4 text-slate-400">
-                      {patient.phone || '—'}
+                    <td className="px-6 py-4 text-slate-500">
+                      {patient.phone || '-'}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
@@ -204,7 +204,7 @@ const Patients: React.FC = () => {
                         </button>
                         <button
                           onClick={() => navigate(`/patients/${patient.id}`)}
-                          className="flex items-center gap-1 py-1.5 px-3 bg-slate-950/40 hover:bg-indigo-600 hover:text-white rounded-lg border border-slate-800 hover:border-indigo-500 transition-all duration-300 text-xs text-slate-400"
+                          className="inline-flex items-center gap-1 rounded-lg border border-blue-200 px-3 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-50 dark:border-blue-500/20 dark:text-blue-300 dark:hover:bg-blue-500/10"
                         >
                           Details
                           <ChevronRight className="h-3 w-3" />
@@ -225,7 +225,7 @@ const Patients: React.FC = () => {
           <div className="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
               <h2 className="text-lg font-bold text-white">
-                {editingPatientId ? 'Edit Patient Profile' : 'Add New Patient'}
+                {editingPatientId ? 'Edit Patient Profile' : 'New Patient'}
               </h2>
               <button 
                 onClick={() => setModalOpen(false)}
@@ -353,7 +353,7 @@ const Patients: React.FC = () => {
                   type="submit"
                   className="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl text-sm shadow shadow-indigo-600/10 transition-colors"
                 >
-                  {editingPatientId ? 'Save Changes' : 'Create Profile'}
+                  {editingPatientId ? 'Save Changes' : 'Create Patient'}
                 </button>
               </div>
             </form>

@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store';
 import { registerUser, clearError } from '../store/slices/authSlice';
 import { HeartPulse, Mail, Lock, UserCheck, Loader2, AlertCircle } from 'lucide-react';
+import AuthShell from '../components/AuthShell';
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -30,8 +31,8 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 dark:bg-slate-950">
-      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-200/70 dark:border-slate-800 dark:bg-slate-900 dark:shadow-slate-950/50">
+    <AuthShell>
+      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="mb-8 text-center">
           <div className="mb-4 inline-flex rounded-2xl border border-blue-200 bg-blue-50 p-3.5 text-blue-600 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-300">
             <HeartPulse className="h-8 w-8" />
@@ -124,7 +125,7 @@ const Register: React.FC = () => {
           </Link>
         </div>
       </div>
-    </div>
+    </AuthShell>
   );
 };
 

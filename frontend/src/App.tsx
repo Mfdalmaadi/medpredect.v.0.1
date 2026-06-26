@@ -20,6 +20,7 @@ import PredictionHistory from './pages/PredictionHistory';
 import PredictionDetail from './pages/PredictionDetail';
 import AdminDashboard from './pages/AdminDashboard';
 import Notifications from './pages/Notifications';
+import Reports from './pages/Reports';
 import Unauthorized from './pages/Unauthorized';
 
 const AppContent: React.FC = () => {
@@ -50,7 +51,7 @@ const AppContent: React.FC = () => {
           <Route 
             path="dashboard" 
             element={
-              <RouteGuard>
+              <RouteGuard allowedRoles={['admin', 'doctor']}>
                 <Dashboard />
               </RouteGuard>
             } 
@@ -96,7 +97,7 @@ const AppContent: React.FC = () => {
           <Route 
             path="history" 
             element={
-              <RouteGuard>
+              <RouteGuard allowedRoles={['admin', 'doctor']}>
                 <PredictionHistory />
               </RouteGuard>
             } 
@@ -104,8 +105,17 @@ const AppContent: React.FC = () => {
           <Route 
             path="predictions/:id" 
             element={
-              <RouteGuard>
+              <RouteGuard allowedRoles={['admin', 'doctor']}>
                 <PredictionDetail />
+              </RouteGuard>
+            } 
+          />
+
+          <Route 
+            path="reports" 
+            element={
+              <RouteGuard allowedRoles={['admin', 'doctor']}>
+                <Reports />
               </RouteGuard>
             } 
           />
@@ -122,6 +132,14 @@ const AppContent: React.FC = () => {
           {/* Admin specific control dashboard */}
           <Route 
             path="admin" 
+            element={
+              <RouteGuard allowedRoles={['admin']}>
+                <AdminDashboard />
+              </RouteGuard>
+            } 
+          />
+          <Route 
+            path="admin/:section" 
             element={
               <RouteGuard allowedRoles={['admin']}>
                 <AdminDashboard />
