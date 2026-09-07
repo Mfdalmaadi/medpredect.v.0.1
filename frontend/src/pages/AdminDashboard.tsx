@@ -60,7 +60,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleToggleStatus = (user: any) => {
-    const actionText = user.is_active ? 'disable' : 'enable';
+    const actionText = user.is_active ? 'disable' : user.role === 'doctor' ? 'activate' : 'enable';
     if (window.confirm(`Are you sure you want to ${actionText} the user account: ${user.email}?`)) {
       if (user.is_active) {
         dispatch(disableUser(user.id));
@@ -226,6 +226,7 @@ const AdminDashboard: React.FC = () => {
                       <th className="px-6 py-4">User ID</th>
                       <th className="px-6 py-4">Email</th>
                       <th className="px-6 py-4">Role</th>
+                      <th className="px-6 py-4">Doctor Profile</th>
                       <th className="px-6 py-4">Status</th>
                       <th className="px-6 py-4 text-right">Access Controls</th>
                     </tr>
@@ -240,10 +241,21 @@ const AdminDashboard: React.FC = () => {
                             {user.role}
                           </span>
                         </td>
+                        <td className="px-6 py-4 text-xs text-slate-500">
+                          {user.doctor_profile ? (
+                            <div className="space-y-1">
+                              <p className="font-semibold text-slate-800 dark:text-slate-200">{user.doctor_profile.specialization}</p>
+                              <p>{user.doctor_profile.license_number}</p>
+                              <p>{user.doctor_profile.hospital}</p>
+                            </div>
+                          ) : (
+                            <span>-</span>
+                          )}
+                        </td>
                         <td className="px-6 py-4">
-                          <span className={`inline-flex items-center gap-1 text-xs font-semibold ${user.is_active ? 'text-emerald-600 dark:text-emerald-300' : 'text-slate-500'}`}>
+                          <span className={`inline-flex items-center gap-1 text-xs font-semibold ${user.is_active ? 'text-emerald-600 dark:text-emerald-300' : user.role === 'doctor' ? 'text-amber-600 dark:text-amber-300' : 'text-slate-500'}`}>
                             {user.is_active ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-                            {user.is_active ? 'Active' : 'Disabled'}
+                            {user.is_active ? 'Active' : user.role === 'doctor' ? 'Pending' : 'Disabled'}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right">
@@ -256,7 +268,7 @@ const AdminDashboard: React.FC = () => {
                             }`}
                           >
                             {user.is_active ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
-                            {user.is_active ? 'Disable Access' : 'Enable Access'}
+                            {user.is_active ? 'Disable Access' : user.role === 'doctor' ? 'Activate Doctor' : 'Enable Access'}
                           </button>
                         </td>
                       </tr>

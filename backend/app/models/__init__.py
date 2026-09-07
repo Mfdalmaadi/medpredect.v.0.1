@@ -1,6 +1,7 @@
 """SQLAlchemy models package."""
 
 from app.models.audit_log import AuditLog
+from app.models.doctor import Doctor
 from app.models.user import User, UserRole
 from app.models.patient import Gender, Patient
 from app.models.prediction import (
@@ -21,6 +22,7 @@ __all__ = [
     "ClinicalInputDiabetes",
     "ClinicalInputPCOS",
     "DiseaseType",
+    "Doctor",
     "Gender",
     "Notification",
     "NotificationType",

@@ -12,18 +12,19 @@ const Login: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, loading, error } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, loading, error, user } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     dispatch(clearError());
   }, [dispatch]);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && user) {
       const from = (location.state as any)?.from?.pathname || '/dashboard';
-      navigate(from, { replace: true });
+      const safeDestination = getSafePostLoginDestination(from, user.role);
+      navigate(safeDestination, { replace: true });
     }
-  }, [isAuthenticated, navigate, location]);
+  }, [isAuthenticated, user, navigate, location]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,6 +111,33 @@ const Login: React.FC = () => {
       </div>
     </AuthShell>
   );
+};
+
+const getSafePostLoginDestination = (path: string, role: 'admin' | 'doctor' | 'patient') => {
+  if (!path || path === '/login' || path === '/register' || path === '/unauthorized') {
+    return role === 'admin' ? '/admin' : '/dashboard';
+  }
+
+  if (role === 'admin') {
+    return path;
+  }
+
+  const doctorRoutes = [
+    '/dashboard',
+    '/patients',
+    '/predict/diabetes',
+    '/predict/pcos',
+    '/history',
+    '/predictions',
+    '/reports',
+    '/notifications',
+  ];
+
+  if (role === 'doctor' && doctorRoutes.some((route) => path === route || path.startsWith(`${route}/`))) {
+    return path;
+  }
+
+  return '/dashboard';
 };
 
 export default Login;

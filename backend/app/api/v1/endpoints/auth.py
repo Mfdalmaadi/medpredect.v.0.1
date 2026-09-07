@@ -9,6 +9,7 @@ from app.schemas.auth import (
     LogoutResponse,
     RefreshTokenRequest,
     RegisterRequest,
+    RegisterResponse,
     TokenPair,
 )
 from app.services.auth_service import AuthService
@@ -18,11 +19,11 @@ router = APIRouter()
 
 @router.post(
     "/register",
-    response_model=AuthResponse,
+    response_model=RegisterResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Register a new user",
 )
-def register(payload: RegisterRequest, request: Request, db: Session = Depends(get_db)) -> AuthResponse:
+def register(payload: RegisterRequest, request: Request, db: Session = Depends(get_db)) -> RegisterResponse:
     return AuthService(db, request.state.ip_address).register(payload)
 
 

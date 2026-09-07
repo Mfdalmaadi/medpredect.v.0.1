@@ -14,11 +14,6 @@ USERS = [
         "password": "Doctor123!",
         "role": UserRole.DOCTOR,
     },
-    {
-        "email": "patient@medpredict.com",
-        "password": "Patient123!",
-        "role": UserRole.PATIENT,
-    },
 ]
 
 

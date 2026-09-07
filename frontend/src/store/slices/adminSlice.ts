@@ -15,10 +15,15 @@ export interface AuditLog {
 export interface AdminStats {
   total_users: number;
   active_users: number;
+  inactive_users: number;
   users_by_role: Record<string, number>;
   total_patients: number;
   total_predictions: number;
+  high_risk_predictions: number;
   predictions_by_disease: Record<string, number>;
+  predictions_by_risk: Record<string, number>;
+  unread_notifications: number;
+  audit_log_count: number;
 }
 
 interface AdminState {

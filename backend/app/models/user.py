@@ -22,5 +22,11 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         nullable=False,
     )
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default=true())
+    doctor_profile: Mapped["Doctor | None"] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        uselist=False,
+    )
     predictions: Mapped[list["Prediction"]] = relationship(back_populates="doctor")
     notifications: Mapped[list["Notification"]] = relationship(back_populates="user")

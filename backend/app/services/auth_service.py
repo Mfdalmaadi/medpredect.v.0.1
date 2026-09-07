@@ -8,9 +8,11 @@ from app.core.security import (
     hash_password,
     verify_password,
 )
-from app.models.user import User
+from app.models.user import User, UserRole
+from app.repositories.doctor_repository import DoctorRepository
 from app.repositories.user_repository import UserRepository
-from app.schemas.auth import AuthResponse, LoginRequest, RefreshTokenRequest, RegisterRequest, TokenPair
+from app.schemas.auth import AuthResponse, LoginRequest, RefreshTokenRequest, RegisterRequest, RegisterResponse, TokenPair
+from app.schemas.doctor import DoctorCreate
 from app.schemas.user import UserCreate
 from app.services.audit_service import AuditService
 
@@ -20,9 +22,10 @@ class AuthService:
         self.db = db
         self.ip_address = ip_address
         self.users = UserRepository(db)
+        self.doctors = DoctorRepository(db)
         self.audit = AuditService(db)
 
-    def register(self, data: RegisterRequest) -> AuthResponse:
+    def register(self, data: RegisterRequest) -> RegisterResponse:
         existing_user = self.users.get_by_email(data.email)
         if existing_user is not None:
             raise HTTPException(
@@ -30,14 +33,32 @@ class AuthService:
                 detail="A user with this email already exists.",
             )
 
+        if data.role == UserRole.DOCTOR and self.doctors.get_by_license_number(data.license_number or "") is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="A doctor with this license number already exists.",
+            )
+
+        is_active = data.role != UserRole.DOCTOR
         user = self.users.create(
             UserCreate(
                 email=data.email,
                 password_hash=hash_password(data.password),
                 role=data.role,
-                is_active=True,
+                is_active=is_active,
             )
         )
+        if data.role == UserRole.DOCTOR:
+            self.doctors.create(
+                DoctorCreate(
+                    user_id=user.id,
+                    specialization=data.specialization or "",
+                    license_number=data.license_number or "",
+                    hospital=data.hospital or "",
+                )
+            )
+            self.db.refresh(user)
+
         self.audit.log_action(
             user_id=user.id,
             action="register",
@@ -45,7 +66,13 @@ class AuthService:
             ip_address=self.ip_address,
         )
         self.db.commit()
-        return self._build_auth_response(user)
+        self.db.refresh(user)
+        return RegisterResponse(
+            user=user,
+            message="Doctor account created and pending administrator approval."
+            if data.role == UserRole.DOCTOR
+            else "Account created.",
+        )
 
     def login(self, data: LoginRequest) -> AuthResponse:
         user = self.users.get_by_email(data.email)
@@ -56,9 +83,10 @@ class AuthService:
             )
 
         if not user.is_active:
+            detail = "This doctor account is pending administrator approval." if user.role == UserRole.DOCTOR else "This user account is inactive."
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="This user account is inactive.",
+                detail=detail,
             )
 
         self.audit.log_action(

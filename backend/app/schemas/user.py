@@ -3,6 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from app.models.user import UserRole
+from app.schemas.doctor import DoctorRead
 
 
 class UserBase(BaseModel):
@@ -26,5 +27,6 @@ class UserRead(UserBase):
     id: str
     created_at: datetime
     updated_at: datetime
+    doctor_profile: DoctorRead | None = None
 
     model_config = ConfigDict(from_attributes=True)
