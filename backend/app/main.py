@@ -24,10 +24,14 @@ def create_app() -> FastAPI:
         version="0.1.0",
         lifespan=lifespan,
     )
+    cors_origins = [origin.strip() for origin in settings.cors_origins.split(",") if origin.strip()]
+    allow_all = "*" in cors_origins
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
-        allow_credentials=True,
+        allow_origins=["*"] if allow_all else cors_origins,
+        allow_origin_regex=settings.cors_origin_regex if not allow_all else None,
+        allow_credentials=not allow_all,
         allow_methods=["*"],
         allow_headers=["*"],
     )

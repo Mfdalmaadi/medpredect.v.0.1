@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: medpredict-backend
+    env: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install --no-cache-dir -r requirements.txt
+    startCommand: alembic upgrade head && python seed_users.py && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: API_V1_PREFIX
+        value: /api/v1
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_REFRESH_SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: CORS_ORIGINS
+        value: "http://localhost:5173"

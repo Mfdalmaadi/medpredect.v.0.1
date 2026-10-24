@@ -1,8 +1,11 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-// Create Axios instance utilizing the Vite proxy
+const apiBaseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+export const API_BASE_URL = apiBaseUrl ? `${apiBaseUrl}/api/v1` : '/api/v1';
+
+// Create Axios instance utilizing the configured backend URL or Vite proxy
 const apiClient = axios.create({
-  baseURL: '/api/v1',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -75,7 +78,7 @@ apiClient.interceptors.response.use(
 
       try {
         // Request token refresh
-        const { data } = await axios.post('/api/v1/auth/refresh', {
+        const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, {
           refresh_token: refreshToken,
         });
 
