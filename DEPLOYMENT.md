@@ -49,7 +49,7 @@ You can choose either **Aiven** or **TiDB Cloud** (both offer 100% free MySQL):
      ```
    - **Start Command**:
      ```bash
-     alembic upgrade head && python seed_users.py && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+     bash start.sh
      ```
    - **Instance Type**: Select **Free**.
 5. Add the following **Environment Variables**:
