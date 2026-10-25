@@ -1,4 +1,5 @@
 from functools import lru_cache
+import urllib.parse as up
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -37,7 +38,6 @@ class Settings(BaseSettings):
         case_sensitive=False,
         extra="ignore",
     )
-
     @property
     def database_url(self) -> str:
         if self.database_url_env and self.database_url_env.strip():
@@ -48,6 +48,17 @@ class Settings(BaseSettings):
                 url = "postgresql+psycopg2://" + url[len("postgres://"):]
             elif url.startswith("postgresql://"):
                 url = "postgresql+psycopg2://" + url[len("postgresql://"):]
+
+            # PyMySQL dialect in SQLAlchemy does not accept ?ssl-mode= query param.
+            # Strip ssl-mode / ssl_mode from query string to avoid TypeError.
+            if "pymysql" in url and "?" in url:
+                parsed = up.urlparse(url)
+                qs = up.parse_qs(parsed.query)
+                qs.pop("ssl-mode", None)
+                qs.pop("ssl_mode", None)
+                new_query = up.urlencode(qs, doseq=True)
+                url = up.urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, new_query, parsed.fragment))
+
             return url
 
         return (
@@ -56,6 +67,14 @@ class Settings(BaseSettings):
             f"@{self.mysql_host}:{self.mysql_port}/{self.mysql_database}"
             "?charset=utf8mb4"
         )
+
+    @property
+    def database_connect_args(self) -> dict:
+        args = {}
+        raw = (self.database_url_env or "").lower()
+        if "ssl" in raw or "aivencloud" in raw or "tidbcloud" in raw:
+            args["ssl"] = {}
+        return args
 
 
 @lru_cache
