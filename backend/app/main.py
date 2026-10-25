@@ -1,3 +1,4 @@
+import re
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -24,10 +25,20 @@ def create_app() -> FastAPI:
         version="0.1.0",
         lifespan=lifespan,
     )
+    # Build the origin regex from the comma-separated cors_origins list
+    # plus common patterns for local dev and Vercel deployments.
+    # We rely solely on regex (no allow_origins list) because mixing both
+    # with allow_credentials=True can cause Starlette validation errors.
+    extra_origins = "|".join(
+        re.escape(o.strip())
+        for o in settings.cors_origins.split(",")
+        if o.strip() and o.strip() != "*"
+    )
+    origin_regex = rf"({extra_origins}|https://[\w-]+\.vercel\.app|http://localhost:\d+|http://127\.0\.0\.1:\d+)"
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[origin.strip() for origin in settings.cors_origins.split(",") if origin.strip() and origin.strip() != "*"],
-        allow_origin_regex=r"https?://.*",
+        allow_origins=[],
+        allow_origin_regex=origin_regex,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
