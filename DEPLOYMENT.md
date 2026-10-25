@@ -55,6 +55,7 @@ You can choose either **Aiven** or **TiDB Cloud** (both offer 100% free MySQL):
 5. Add the following **Environment Variables**:
    | Key | Value | Notes |
    | :--- | :--- | :--- |
+   | `PYTHON_VERSION` | `3.11.10` | Uses pre-built wheels for fast and error-free builds |
    | `DATABASE_URL` | *(Paste your connection string from Step 1)* | Automatically runs migrations and seeds default users |
    | `APP_ENV` | `production` | Production environment mode |
    | `APP_DEBUG` | `false` | Disable debug in production |
